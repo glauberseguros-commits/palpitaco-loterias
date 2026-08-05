@@ -5,6 +5,7 @@ import { Router } from "express";
 import {
   getLatestOfficialResult,
   getOfficialResult,
+  getOfficialResultHistory,
 } from "../services/officialResultsService.js";
 
 import {
@@ -219,6 +220,126 @@ router.get(
 );
 
 router.get(
+  "/:lotteryKey/history",
+  async (request, response) => {
+    const lotteryKey = normalizeLotteryKey(
+      request.params.lotteryKey,
+    );
+
+    try {
+      getLotteryDefinition(lotteryKey);
+    } catch {
+      return sendError(
+        response,
+        400,
+        "INVALID_LOTTERY",
+        "Modalidade inválida.",
+      );
+    }
+
+    const limitText =
+      String(
+        request.query.limit || "",
+      ).trim();
+
+    const cursorText =
+      String(
+        request.query.cursor || "",
+      ).trim();
+
+    const limit =
+      limitText
+        ? Number(limitText)
+        : 20;
+
+    const cursor =
+      cursorText
+        ? Number(cursorText)
+        : null;
+
+    if (
+      !Number.isInteger(limit) ||
+      limit <= 0 ||
+      limit > 100
+    ) {
+      return sendError(
+        response,
+        400,
+        "INVALID_HISTORY_LIMIT",
+        "O limite deve ser um inteiro entre 1 e 100.",
+      );
+    }
+
+    if (
+      cursorText &&
+      (
+        !Number.isInteger(cursor) ||
+        cursor <= 0
+      )
+    ) {
+      return sendError(
+        response,
+        400,
+        "INVALID_HISTORY_CURSOR",
+        "Cursor histórico inválido.",
+      );
+    }
+
+    try {
+      const history =
+        await getOfficialResultHistory(
+          lotteryKey,
+          {
+            limit,
+            cursor,
+          },
+        );
+
+      return response.json({
+        ok: true,
+        source: "CAIXA",
+        lotteryKey,
+        count:
+          history.results.length,
+
+        results:
+          history.results.map(
+            toPublicResult,
+          ),
+
+        pagination: {
+          latestContest:
+            history.latestContest,
+
+          limit:
+            history.limit,
+
+          cursor:
+            history.cursor,
+
+          nextCursor:
+            history.nextCursor,
+
+          hasMore:
+            history.hasMore,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "[PUBLIC_API_HISTORY]",
+        error,
+      );
+
+      return sendError(
+        response,
+        500,
+        "HISTORY_RESULTS_READ_FAILED",
+        "Não foi possível consultar o histórico oficial.",
+      );
+    }
+  },
+);
+router.get(
   "/:lotteryKey/:contest",
   async (request, response) => {
     const lotteryKey = normalizeLotteryKey(
@@ -286,3 +407,4 @@ router.get(
 );
 
 export default router;
+
