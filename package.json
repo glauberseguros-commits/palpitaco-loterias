@@ -11,7 +11,8 @@
     "caixa:import:dry": "node backend/scripts/importCaixaResults.js --lottery=all",
     "caixa:import": "node backend/scripts/importCaixaResults.js --lottery=all --write",
     "api:start": "node backend/api/server.js",
-    "api:check": "node --check backend/api/server.js && node --check backend/routes/lotteries.js"
+    "api:check": "node --check backend/api/server.js && node --check backend/routes/lotteries.js",
+    "start": "node backend/api/server.js"
   },
   "dependencies": {
     "cors": "^2.8.6",

@@ -1,0 +1,14 @@
+.gcloudignore
+.git
+.gitignore
+.github
+.firebase
+.vscode
+node_modules
+dist
+tmp
+*.log
+.env
+.env.*
+coverage
+README.md
