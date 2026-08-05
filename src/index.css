@@ -1,18 +1,60 @@
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+:root {
+  --background: #050505;
+  --surface: #0b0b0b;
+  --surface-elevated: #11100d;
+  --gold: #e4c85e;
+  --gold-strong: #f2da78;
+  --gold-muted: #9d8435;
+  --text: #f7f3e8;
+  --text-muted: #9b978d;
+  --border: rgba(224, 194, 88, 0.2);
+  --border-strong: rgba(224, 194, 88, 0.42);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html,
 body,
-#root{
-  width:100%;
-  min-height:100vh;
+#root {
+  min-width: 320px;
+  min-height: 100%;
 }
 
-body{
-  font-family:Segoe UI,Arial,sans-serif;
-  background:#0b0b0b;
-  color:#f5f5f5;
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 18% 15%, rgba(196, 158, 46, 0.1), transparent 30%),
+    radial-gradient(circle at 88% 75%, rgba(196, 158, 46, 0.08), transparent 32%),
+    var(--background);
+}
+
+button,
+a {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#root {
+  min-height: 100vh;
 }
