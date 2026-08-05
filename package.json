@@ -7,9 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "caixa:import:dry": "node backend/scripts/importCaixaResults.js --lottery=all",
+    "caixa:import": "node backend/scripts/importCaixaResults.js --lottery=all --write"
   },
   "dependencies": {
+    "firebase-admin": "^14.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2"
