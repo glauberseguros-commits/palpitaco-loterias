@@ -1,24 +1,18 @@
 :root {
-  --background: #050505;
-  --surface: #0b0b0b;
-  --surface-elevated: #11100d;
-  --gold: #e4c85e;
-  --gold-strong: #f2da78;
-  --gold-muted: #9d8435;
-  --text: #f7f3e8;
-  --text-muted: #9b978d;
-  --border: rgba(224, 194, 88, 0.2);
-  --border-strong: rgba(224, 194, 88, 0.42);
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-  color: var(--text);
-  background: var(--background);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: #f7f2df;
+  background: #050505;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+  --background: #050505;
+  --surface: #0d0d0d;
+  --surface-soft: #13120f;
+  --gold: #dfbd43;
+  --gold-light: #f0d978;
+  --muted: #969187;
+  --border: rgba(223, 189, 67, 0.2);
+  --border-strong: rgba(223, 189, 67, 0.48);
 }
 
 * {
@@ -30,14 +24,13 @@ body,
 #root {
   min-width: 320px;
   min-height: 100%;
+  margin: 0;
 }
 
 body {
   min-height: 100vh;
-  margin: 0;
   background:
-    radial-gradient(circle at 18% 15%, rgba(196, 158, 46, 0.1), transparent 30%),
-    radial-gradient(circle at 88% 75%, rgba(196, 158, 46, 0.08), transparent 32%),
+    radial-gradient(circle at 18% 10%, rgba(193, 151, 31, 0.1), transparent 28%),
     var(--background);
 }
 
@@ -53,8 +46,4 @@ button {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-#root {
-  min-height: 100vh;
 }

@@ -1,75 +1,66 @@
-const modules = [
-  {
-    number: "01",
-    title: "Análises",
-    description: "Leitura estruturada de concursos, padrões e indicadores.",
-    route: "/analises",
-  },
-  {
-    number: "02",
-    title: "Probabilidades",
-    description: "Frequências, tendências e cenários estatísticos.",
-    route: "/probabilidades",
-  },
-  {
-    number: "03",
-    title: "Geradores",
-    description: "Ferramentas para criação e organização de combinações.",
-    route: "/geradores",
-  },
-  {
-    number: "04",
-    title: "Resultados",
-    description: "Conferência, histórico e acompanhamento de concursos.",
-    route: "/resultados",
-  },
-];
+import { LOTTERY_CATALOG } from "../../data/lotteries";
 
-export default function Dashboard({ onNavigate }) {
+export default function Dashboard() {
   return (
-    <section className="page-section">
-      <header className="page-heading">
-        <p className="eyebrow">Visão geral</p>
+    <section className="page">
+      <header className="page-header">
+        <span className="eyebrow">Visão geral</span>
         <h1>Palpitaco Loterias</h1>
         <p>
-          Inteligência aplicada às loterias oficiais, com informações,
-          probabilidades e ferramentas organizadas em um único ambiente.
+          Resultados oficiais, análises, estatísticas, geradores e conferência
+          em um único ambiente.
         </p>
       </header>
 
-      <div className="module-grid">
-        {modules.map((module) => (
+      <div className="lottery-selector">
+        {LOTTERY_CATALOG.map((lottery, index) => (
           <button
+            key={lottery.key}
             type="button"
-            className="module-card"
-            key={module.route}
-            onClick={() => onNavigate(module.route)}
+            className={index === 0 ? "lottery-tab lottery-tab-active" : "lottery-tab"}
           >
-            <span className="module-number">{module.number}</span>
-
-            <span className="module-content">
-              <strong>{module.title}</strong>
-              <small>{module.description}</small>
-            </span>
-
-            <span className="module-arrow" aria-hidden="true">
-              →
-            </span>
+            {lottery.name}
           </button>
         ))}
       </div>
 
-      <aside className="status-card">
-        <div>
-          <span className="status-dot" aria-hidden="true" />
-          <strong>Estrutura inicial disponível</strong>
-        </div>
+      <div className="dashboard-grid">
+        <article className="panel">
+          <div className="panel-heading">
+            <div>
+              <span className="panel-label">Fonte oficial</span>
+              <h2>Último resultado</h2>
+            </div>
 
-        <p>
-          A navegação-base está pronta. Nenhuma regra de negócio ou cálculo
-          de loteria foi implementado nesta etapa.
-        </p>
-      </aside>
+            <span className="status-badge">Aguardando integração</span>
+          </div>
+
+          <div className="official-source">
+            <strong>Loterias CAIXA</strong>
+            <p>
+              O importador oficial ainda será implementado. Nenhum resultado
+              demonstrativo será apresentado como dado real.
+            </p>
+          </div>
+        </article>
+
+        <article className="panel">
+          <div className="panel-heading">
+            <div>
+              <span className="panel-label">Ferramenta</span>
+              <h2>Gerador inteligente</h2>
+            </div>
+          </div>
+
+          <div className="empty-module">
+            <strong>Motor ainda não implementado</strong>
+            <p>
+              O gerador será construído com regras específicas para cada
+              modalidade e métricas claramente identificadas.
+            </p>
+          </div>
+        </article>
+      </div>
     </section>
   );
 }
