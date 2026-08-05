@@ -81,40 +81,17 @@ export async function saveOfficialLotteryResult(
   return database.runTransaction(
     async (transaction) => {
       const currentResult =
-        await transaction.get(resultRef);
+  await transaction.get(resultRef);
 
-      /*
-       * LOTTERY_OFFICIAL_RESULT_IMMUTABLE_V1
-       *
-       * Um concurso oficial já persistido não pode ser
-       * recalculado ou substituído silenciosamente.
-       */
-      if (currentResult.exists) {
-        const existing =
-          currentResult.data() || {};
+const currentLatest =
+  await transaction.get(latestRef);
 
-        const sameContest =
-          Number(existing.contest) ===
-          Number(result.contest);
-
-        const sameNumbers =
-          JSON.stringify(existing.numbers || []) ===
-          JSON.stringify(result.numbers || []);
-
-        if (!sameContest || !sameNumbers) {
-          throw new Error(
-            `Conflito imutável em ${result.id}.`,
-          );
-        }
-
-        return {
-          ok: true,
-          created: false,
-          existing: true,
-          protected: true,
-          id: result.id,
-        };
-      }
+      const latestContest =
+        currentLatest.exists
+          ? Number(
+              currentLatest.data()?.contest || 0,
+            )
+          : 0;
 
       const storedPayload = {
         ...result,
@@ -126,16 +103,6 @@ export async function saveOfficialLotteryResult(
         resultRef,
         storedPayload,
       );
-
-      const currentLatest =
-        await transaction.get(latestRef);
-
-      const latestContest =
-        currentLatest.exists
-          ? Number(
-              currentLatest.data()?.contest || 0,
-            )
-          : 0;
 
       if (Number(result.contest) >= latestContest) {
         transaction.set(
@@ -169,3 +136,5 @@ export async function saveOfficialLotteryResult(
     },
   );
 }
+
+

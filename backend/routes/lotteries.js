@@ -1,0 +1,288 @@
+"use strict";
+
+import { Router } from "express";
+
+import {
+  getLatestOfficialResult,
+  getOfficialResult,
+} from "../services/officialResultsService.js";
+
+import {
+  getLotteryDefinition,
+  LOTTERY_KEYS,
+} from "../domain/lotteryCatalog.js";
+
+const router = Router();
+
+function normalizeLotteryKey(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeContest(value) {
+  const contest = Number(value);
+
+  if (
+    !Number.isInteger(contest) ||
+    contest <= 0
+  ) {
+    return null;
+  }
+
+  return contest;
+}
+
+function toPublicResult(result) {
+  if (!result) {
+    return null;
+  }
+
+  return {
+    id: result.id,
+    lotteryKey: result.lotteryKey,
+    lotteryName: result.lotteryName,
+    contest: result.contest,
+    drawDate: result.drawDate,
+    nextDrawDate: result.nextDrawDate,
+
+    numbers: Array.isArray(result.numbers)
+      ? result.numbers
+      : [],
+
+    drawOrderNumbers: Array.isArray(
+      result.drawOrderNumbers,
+    )
+      ? result.drawOrderNumbers
+      : [],
+
+    accumulated:
+      result.accumulated === true,
+
+    estimatedNextPrize:
+      Number(result.estimatedNextPrize || 0),
+
+    accumulatedNextContest:
+      Number(result.accumulatedNextContest || 0),
+
+    accumulatedSpecialDraw:
+      Number(result.accumulatedSpecialDraw || 0),
+
+    totalCollected:
+      Number(result.totalCollected || 0),
+
+    prizeRanges: Array.isArray(
+      result.prizeRanges,
+    )
+      ? result.prizeRanges
+      : [],
+
+    previousContest:
+      result.previousContest || null,
+
+    nextContest:
+      result.nextContest || null,
+
+    drawLocation:
+      result.drawLocation || "",
+
+    drawCityState:
+      result.drawCityState || "",
+
+    status:
+      result.status || "official",
+
+    immutable:
+      result.immutable === true,
+
+    officialSource: {
+      provider:
+        result.officialSource?.provider ||
+        "CAIXA",
+
+      system:
+        result.officialSource?.system ||
+        "Portal de Loterias CAIXA",
+
+      contractVersion:
+        result.officialSource?.contractVersion ||
+        "CAIXA_PORTAL_LOTERIAS_V1",
+
+      fetchedAt:
+        result.officialSource?.fetchedAt ||
+        null,
+    },
+  };
+}
+
+function sendError(
+  response,
+  status,
+  code,
+  message,
+) {
+  return response.status(status).json({
+    ok: false,
+    error: {
+      code,
+      message,
+    },
+  });
+}
+
+router.get("/latest", async (_request, response) => {
+  try {
+    const results = await Promise.all(
+      LOTTERY_KEYS.map(async (lotteryKey) => {
+        const result =
+          await getLatestOfficialResult(
+            lotteryKey,
+          );
+
+        return toPublicResult(result);
+      }),
+    );
+
+    return response.json({
+      ok: true,
+      source: "CAIXA",
+      count: results.filter(Boolean).length,
+      results: results.filter(Boolean),
+    });
+  } catch (error) {
+    console.error(
+      "[PUBLIC_API_LATEST_ALL]",
+      error,
+    );
+
+    return sendError(
+      response,
+      500,
+      "LATEST_RESULTS_READ_FAILED",
+      "Não foi possível consultar os resultados oficiais.",
+    );
+  }
+});
+
+router.get(
+  "/latest/:lotteryKey",
+  async (request, response) => {
+    const lotteryKey = normalizeLotteryKey(
+      request.params.lotteryKey,
+    );
+
+    try {
+      getLotteryDefinition(lotteryKey);
+    } catch {
+      return sendError(
+        response,
+        400,
+        "INVALID_LOTTERY",
+        "Modalidade inválida.",
+      );
+    }
+
+    try {
+      const result =
+        await getLatestOfficialResult(
+          lotteryKey,
+        );
+
+      if (!result) {
+        return sendError(
+          response,
+          404,
+          "LATEST_RESULT_NOT_FOUND",
+          "Resultado mais recente não encontrado.",
+        );
+      }
+
+      return response.json({
+        ok: true,
+        source: "CAIXA",
+        result: toPublicResult(result),
+      });
+    } catch (error) {
+      console.error(
+        "[PUBLIC_API_LATEST_ONE]",
+        error,
+      );
+
+      return sendError(
+        response,
+        500,
+        "LATEST_RESULT_READ_FAILED",
+        "Não foi possível consultar o resultado oficial.",
+      );
+    }
+  },
+);
+
+router.get(
+  "/:lotteryKey/:contest",
+  async (request, response) => {
+    const lotteryKey = normalizeLotteryKey(
+      request.params.lotteryKey,
+    );
+
+    try {
+      getLotteryDefinition(lotteryKey);
+    } catch {
+      return sendError(
+        response,
+        400,
+        "INVALID_LOTTERY",
+        "Modalidade inválida.",
+      );
+    }
+
+    const contest = normalizeContest(
+      request.params.contest,
+    );
+
+    if (!contest) {
+      return sendError(
+        response,
+        400,
+        "INVALID_CONTEST",
+        "Número do concurso inválido.",
+      );
+    }
+
+    try {
+      const result = await getOfficialResult(
+        lotteryKey,
+        contest,
+      );
+
+      if (!result) {
+        return sendError(
+          response,
+          404,
+          "OFFICIAL_RESULT_NOT_FOUND",
+          "Concurso oficial não encontrado.",
+        );
+      }
+
+      return response.json({
+        ok: true,
+        source: "CAIXA",
+        result: toPublicResult(result),
+      });
+    } catch (error) {
+      console.error(
+        "[PUBLIC_API_CONTEST]",
+        error,
+      );
+
+      return sendError(
+        response,
+        500,
+        "OFFICIAL_RESULT_READ_FAILED",
+        "Não foi possível consultar o concurso oficial.",
+      );
+    }
+  },
+);
+
+export default router;

@@ -9,9 +9,13 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "caixa:import:dry": "node backend/scripts/importCaixaResults.js --lottery=all",
-    "caixa:import": "node backend/scripts/importCaixaResults.js --lottery=all --write"
+    "caixa:import": "node backend/scripts/importCaixaResults.js --lottery=all --write",
+    "api:start": "node backend/api/server.js",
+    "api:check": "node --check backend/api/server.js && node --check backend/routes/lotteries.js"
   },
   "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "firebase-admin": "^14.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
