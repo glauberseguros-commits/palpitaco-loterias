@@ -338,6 +338,37 @@ async function importLottery({
         `[ERRO] ${lottery.name} ` +
         `concurso=${contest}: ${message}`,
       );
+
+      /*
+       * HISTORICAL_BACKFILL_CONTIGUOUS_CHECKPOINT_V1
+       *
+       * Em modo WRITE, uma falha interrompe imediatamente
+       * a modalidade. O checkpoint permanece exatamente
+       * no concurso que falhou, impedindo que a retomada
+       * pule lacunas históricas.
+       */
+      if (shouldWrite) {
+        writeCheckpoint(
+          lotteryKey,
+          {
+            lastProcessedContest:
+              contest - 1,
+            nextContest: contest,
+            endContest,
+            completed: false,
+            failure: {
+              contest,
+              error: message,
+            },
+          },
+        );
+
+        throw new Error(
+          `${lottery.name}: backfill interrompido ` +
+          `no concurso ${contest}. ` +
+          `Execute novamente com --resume.`,
+        );
+      }
     }
 
     if (
@@ -503,3 +534,4 @@ main().catch((error) => {
 
   process.exitCode = 1;
 });
+

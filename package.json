@@ -15,7 +15,9 @@
     "start": "node backend/api/server.js",
     "caixa:history:pilot": "node backend/scripts/importCaixaHistory.js --lottery=all --pilot=10 --batch-size=10 --delay-ms=250 --retries=3",
     "caixa:history:dry": "node backend/scripts/importCaixaHistory.js --lottery=all --start=1 --batch-size=100 --delay-ms=250 --retries=3",
-    "caixa:history:write": "node backend/scripts/importCaixaHistory.js --lottery=all --start=1 --batch-size=100 --delay-ms=250 --retries=3 --write --resume"
+    "caixa:history:write": "node backend/scripts/importCaixaHistory.js --lottery=all --start=1 --batch-size=100 --delay-ms=250 --retries=3 --write --resume",
+    "caixa:history:mega:write": "node backend/scripts/importCaixaHistory.js --lottery=mega-sena --start=1 --batch-size=100 --delay-ms=250 --retries=5 --write",
+    "caixa:history:mega:resume": "node backend/scripts/importCaixaHistory.js --lottery=mega-sena --start=1 --batch-size=100 --delay-ms=250 --retries=5 --write --resume"
   },
   "dependencies": {
     "cors": "^2.8.6",
