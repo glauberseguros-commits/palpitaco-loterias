@@ -13,11 +13,9 @@ import {
 } from "firebase-admin/firestore";
 
 function resolveCredential() {
-  const encoded =
-    String(
-      process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 ||
-      "",
-    ).trim();
+  const encoded = String(
+    process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 || "",
+  ).trim();
 
   if (!encoded) {
     return applicationDefault();
@@ -80,11 +78,59 @@ export async function saveOfficialLotteryResult(
 
   return database.runTransaction(
     async (transaction) => {
+      /*
+       * FIRESTORE_TRANSACTION_READS_FIRST_V1
+       *
+       * O Firestore exige que todas as leituras ocorram
+       * antes da primeira escrita da transação.
+       */
       const currentResult =
-  await transaction.get(resultRef);
+        await transaction.get(resultRef);
 
-const currentLatest =
-  await transaction.get(latestRef);
+      const currentLatest =
+        await transaction.get(latestRef);
+
+      /*
+       * LOTTERY_OFFICIAL_RESULT_IMMUTABLE_V1
+       *
+       * Um concurso oficial já persistido não pode ser
+       * recalculado ou substituído silenciosamente.
+       */
+      if (currentResult.exists) {
+        const existing =
+          currentResult.data() || {};
+
+        const sameContest =
+          Number(existing.contest) ===
+          Number(result.contest);
+
+        const sameNumbers =
+          JSON.stringify(existing.numbers || []) ===
+          JSON.stringify(result.numbers || []);
+
+        if (!sameContest || !sameNumbers) {
+          throw new Error(
+            `Conflito imutável em ${result.id}.`,
+          );
+        }
+
+        return {
+          ok: true,
+          created: false,
+          existing: true,
+          protected: true,
+          id: result.id,
+          reason: "ALREADY_PERSISTED",
+        };
+      }
+
+      const storedPayload = {
+        ...result,
+        createdAt:
+          FieldValue.serverTimestamp(),
+        updatedAt:
+          FieldValue.serverTimestamp(),
+      };
 
       const latestContest =
         currentLatest.exists
@@ -93,32 +139,44 @@ const currentLatest =
             )
           : 0;
 
-      const storedPayload = {
-        ...result,
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-      };
-
       transaction.create(
         resultRef,
         storedPayload,
       );
 
-      if (Number(result.contest) >= latestContest) {
+      if (
+        Number(result.contest) >= latestContest
+      ) {
         transaction.set(
           latestRef,
           {
-            lotteryKey: result.lotteryKey,
-            lotteryName: result.lotteryName,
-            contest: result.contest,
-            resultId: result.id,
-            drawDate: result.drawDate,
-            numbers: result.numbers,
-            accumulated: result.accumulated,
+            lotteryKey:
+              result.lotteryKey,
+
+            lotteryName:
+              result.lotteryName,
+
+            contest:
+              result.contest,
+
+            resultId:
+              result.id,
+
+            drawDate:
+              result.drawDate,
+
+            numbers:
+              result.numbers,
+
+            accumulated:
+              result.accumulated,
+
             estimatedNextPrize:
               result.estimatedNextPrize,
+
             officialSource:
               result.officialSource,
+
             updatedAt:
               FieldValue.serverTimestamp(),
           },
@@ -136,5 +194,3 @@ const currentLatest =
     },
   );
 }
-
-
