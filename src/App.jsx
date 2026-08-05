@@ -1,47 +1,78 @@
-import {
-  BrowserRouter,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
-
-import AppShell from "./layouts/AppShell";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import Analises from "./pages/Analises/Analises";
-import Probabilidades from "./pages/Probabilidades/Probabilidades";
-import Geradores from "./pages/Geradores/Geradores";
-import Resultados from "./pages/Resultados/Resultados";
-import Conta from "./pages/Conta/Conta";
 import "./App.css";
 
-function ApplicationRoutes() {
-  const navigate = useNavigate();
+const LOTTERIES = [
+  "Lotofácil",
+  "Mega-Sena",
+  "Quina",
+  "Lotomania"
+];
 
-  return (
-    <AppShell>
-      <Routes>
-        <Route
-          path="/"
-          element={<Dashboard onNavigate={(route) => navigate(route)} />}
-        />
-        <Route path="/analises" element={<Analises />} />
-        <Route path="/probabilidades" element={<Probabilidades />} />
-        <Route path="/geradores" element={<Geradores />} />
-        <Route path="/resultados" element={<Resultados />} />
-        <Route path="/conta" element={<Conta />} />
-        <Route
-          path="*"
-          element={<Dashboard onNavigate={(route) => navigate(route)} />}
-        />
-      </Routes>
-    </AppShell>
-  );
-}
+const RESULT = [
+  "03","05","08","09","12",
+  "14","15","17","18","21",
+  "22","23","24","25","11"
+];
 
 export default function App() {
   return (
-    <BrowserRouter basename="/loterias">
-      <ApplicationRoutes />
-    </BrowserRouter>
+    <main className="app">
+
+      <header className="hero">
+        <h1>PALPITACO LOTERIAS</h1>
+        <p>
+          Inteligência para Loterias Oficiais
+        </p>
+      </header>
+
+      <section className="tabs">
+        {LOTTERIES.map(item=>(
+          <button key={item}>
+            {item}
+          </button>
+        ))}
+      </section>
+
+      <section className="grid">
+
+        <article className="card">
+
+          <h2>Último Resultado</h2>
+
+          <div className="balls">
+            {RESULT.map(n=>(
+              <span key={n}>{n}</span>
+            ))}
+          </div>
+
+          <div className="info">
+            <strong>Concurso</strong>
+            <span>Exemplo</span>
+          </div>
+
+          <div className="info">
+            <strong>Próximo prêmio</strong>
+            <span>Em breve</span>
+          </div>
+
+        </article>
+
+        <article className="card">
+
+          <h2>Gerador Inteligente</h2>
+
+          <p>
+            Em breve será integrado ao motor estatístico do
+            Palpitaco Loterias.
+          </p>
+
+          <button className="primary">
+            Gerar Jogo
+          </button>
+
+        </article>
+
+      </section>
+
+    </main>
   );
 }
