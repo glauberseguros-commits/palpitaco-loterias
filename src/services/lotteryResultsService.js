@@ -156,6 +156,151 @@ export async function getLatestLotteryResult(
   );
 }
 
+export async function getLotteryHistory(
+  lotteryKey,
+  options = {},
+) {
+  const key = String(
+    lotteryKey || "",
+  ).trim();
+
+  if (!key) {
+    throw new Error(
+      "Modalidade não informada.",
+    );
+  }
+
+  const requestedLimit = Number(
+    options.limit ?? 20,
+  );
+
+  if (
+    !Number.isInteger(requestedLimit) ||
+    requestedLimit <= 0 ||
+    requestedLimit > 100
+  ) {
+    throw new Error(
+      "O limite deve ser um inteiro entre 1 e 100.",
+    );
+  }
+
+  const cursor =
+    options.cursor === null ||
+    options.cursor === undefined ||
+    options.cursor === ""
+      ? null
+      : Number(options.cursor);
+
+  if (
+    cursor !== null &&
+    (
+      !Number.isInteger(cursor) ||
+      cursor <= 0
+    )
+  ) {
+    throw new Error(
+      "Cursor histórico inválido.",
+    );
+  }
+
+  const parameters =
+    new URLSearchParams();
+
+  parameters.set(
+    "limit",
+    String(requestedLimit),
+  );
+
+  if (cursor !== null) {
+    parameters.set(
+      "cursor",
+      String(cursor),
+    );
+  }
+
+  const payload = await requestJson(
+    `/api/lotteries/${encodeURIComponent(key)}/history?${parameters.toString()}`,
+  );
+
+  if (!Array.isArray(payload.results)) {
+    throw new Error(
+      "A API não retornou o histórico oficial.",
+    );
+  }
+
+  const pagination =
+    payload.pagination &&
+    typeof payload.pagination === "object"
+      ? payload.pagination
+      : {};
+
+  return {
+    results: payload.results.map(
+      validateOfficialResult,
+    ),
+
+    pagination: {
+      latestContest:
+        Number(
+          pagination.latestContest,
+        ) || null,
+
+      limit:
+        Number(
+          pagination.limit,
+        ) || requestedLimit,
+
+      cursor:
+        Number(
+          pagination.cursor,
+        ) || null,
+
+      nextCursor:
+        Number(
+          pagination.nextCursor,
+        ) || null,
+
+      hasMore:
+        pagination.hasMore === true,
+    },
+  };
+}
+
+export async function getLotteryResultByContest(
+  lotteryKey,
+  contest,
+) {
+  const key = String(
+    lotteryKey || "",
+  ).trim();
+
+  const contestNumber =
+    Number(contest);
+
+  if (!key) {
+    throw new Error(
+      "Modalidade não informada.",
+    );
+  }
+
+  if (
+    !Number.isInteger(contestNumber) ||
+    contestNumber <= 0
+  ) {
+    throw new Error(
+      "Informe um número de concurso válido.",
+    );
+  }
+
+  const payload = await requestJson(
+    `/api/lotteries/${encodeURIComponent(key)}/${contestNumber}`,
+  );
+
+  return validateOfficialResult(
+    payload.result,
+  );
+}
 export function getLotteryApiBaseUrl() {
   return API_BASE_URL;
 }
+
