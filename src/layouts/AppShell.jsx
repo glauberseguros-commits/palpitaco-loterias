@@ -1,154 +1,81 @@
-import {
-  NavLink,
-} from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const navigation = [
-  {
-    to: "/",
-    label: "Início",
-    number: "01",
-    end: true,
-  },
-  {
-    to: "/resultados",
-    label: "Resultados",
-    number: "02",
-  },
-  {
-    to: "/gerador",
-    label: "Gerador",
-    number: "03",
-  },
-  {
-    to: "/estatisticas",
-    label: "Estatísticas",
-    number: "04",
-  },
-  {
-    to: "/conferencia",
-    label: "Conferência",
-    number: "05",
-  },
+  { to: "/", label: "Início", code: "01", end: true },
+  { to: "/resultados", label: "Resultados", code: "02" },
+  { to: "/gerador", label: "Gerador", code: "03" },
+  { to: "/estatisticas", label: "Estatísticas", code: "04" },
+  { to: "/conferencia", label: "Conferência", code: "05" },
 ];
 
-function navigationClass({
-  isActive,
-}) {
+export default function AppShell({ children }) {
   return (
-    "premium-top-navigation-item" +
-    (
-      isActive
-        ? " premium-top-navigation-item-active"
-        : ""
-    )
-  );
-}
+    <div className="shell">
+      <aside className="sidebar">
+        <NavLink to="/" end className="brand">
+          <span className="brand-symbol">PL</span>
 
-function mobileNavigationClass({
-  isActive,
-}) {
-  return (
-    "bottom-navigation-item" +
-    (
-      isActive
-        ? " bottom-navigation-item-active"
-        : ""
-    )
-  );
-}
+          <span className="brand-text">
+            <strong>PALPITACO</strong>
+            <small>LOTERIAS</small>
+          </span>
+        </NavLink>
 
-export default function AppShell({
-  children,
-}) {
-  return (
-    <div className="application-shell premium-top-shell">
-      <header className="premium-application-header">
-        <div className="premium-header-inner">
-          <NavLink
-            className="premium-header-brand"
-            to="/"
-            end
-            aria-label="Palpitaco Loterias — Início"
-          >
-            <span className="premium-header-brand-mark">
-              PL
-            </span>
-
-            <span className="premium-header-brand-copy">
-              <strong>PALPITACO</strong>
-              <small>LOTERIAS</small>
-            </span>
-          </NavLink>
-
-          <nav
-            className="premium-top-navigation"
-            aria-label="Navegação principal"
-          >
-            {navigation.map(
-              (item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  className={navigationClass}
-                >
-                  <span>{item.number}</span>
-                  <strong>{item.label}</strong>
-                </NavLink>
-              ),
-            )}
-          </nav>
-
-          <div className="premium-header-actions">
+        <nav className="main-navigation">
+          {navigation.map((item) => (
             <NavLink
-              className="premium-account-link"
-              to="/conta"
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                isActive ? "nav-item nav-item-active" : "nav-item"
+              }
             >
-              <span className="premium-account-avatar">
-                PL
-              </span>
-
-              <span className="premium-account-copy">
-                <strong>Minha conta</strong>
-                <small>Perfil</small>
-              </span>
+              <span>{item.code}</span>
+              <strong>{item.label}</strong>
             </NavLink>
+          ))}
+        </nav>
 
-            <a
-              className="back-link premium-portal-link"
-              href="/"
-            >
-              Voltar ao portal
-            </a>
+        <NavLink to="/conta" className="account-card">
+          <span>PL</span>
+
+          <div>
+            <strong>Minha conta</strong>
+            <small>Perfil e preferências</small>
           </div>
-        </div>
-      </header>
+        </NavLink>
+      </aside>
 
-      <div className="application-content premium-application-content">
-        <main className="main-content premium-main-content">
-          {children}
-        </main>
+      <div className="workspace">
+        <header className="topbar">
+          <div>
+            <small>Produto</small>
+            <strong>Palpitaco Loterias</strong>
+          </div>
+
+          <a href="/" className="portal-link">
+            Voltar ao portal
+          </a>
+        </header>
+
+        <main className="content">{children}</main>
       </div>
 
-      <nav
-        className="bottom-navigation premium-mobile-navigation"
-        aria-label="Navegação móvel"
-      >
-        {navigation
-          .slice(0, 4)
-          .map(
-            (item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={mobileNavigationClass}
-              >
-                <span>{item.number}</span>
-                <small>{item.label}</small>
-              </NavLink>
-            ),
-          )}
+      <nav className="mobile-navigation">
+        {navigation.slice(0, 4).map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) =>
+              isActive ? "mobile-item mobile-item-active" : "mobile-item"
+            }
+          >
+            <span>{item.code}</span>
+            <small>{item.label}</small>
+          </NavLink>
+        ))}
       </nav>
     </div>
   );
