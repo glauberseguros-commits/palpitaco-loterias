@@ -300,7 +300,58 @@ export async function getLotteryResultByContest(
     payload.result,
   );
 }
+export async function getLotteryResultsByDate(
+  lotteryKey,
+  date,
+) {
+  const key = String(
+    lotteryKey || "",
+  ).trim();
+
+  const normalizedDate = String(
+    date || "",
+  ).trim();
+
+  if (!key) {
+    throw new Error(
+      "Modalidade não informada.",
+    );
+  }
+
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      normalizedDate,
+    )
+  ) {
+    throw new Error(
+      "Informe uma data válida.",
+    );
+  }
+
+  const parameters =
+    new URLSearchParams();
+
+  parameters.set(
+    "date",
+    normalizedDate,
+  );
+
+  const payload = await requestJson(
+    `/api/lotteries/${encodeURIComponent(key)}/by-date?${parameters.toString()}`,
+  );
+
+  if (!Array.isArray(payload.results)) {
+    throw new Error(
+      "A API não retornou resultados válidos.",
+    );
+  }
+
+  return payload.results.map(
+    validateOfficialResult,
+  );
+}
 export function getLotteryApiBaseUrl() {
   return API_BASE_URL;
 }
+
 

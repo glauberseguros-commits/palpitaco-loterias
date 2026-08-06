@@ -218,3 +218,50 @@ export async function getOfficialResultHistory(
     hasMore: nextCursor !== null,
   };
 }
+
+export async function getOfficialResultsByDate(
+  lotteryKey,
+  drawDate,
+) {
+  if (!lotteryKey) {
+    throw new Error("lotteryKey obrigatório.");
+  }
+
+  const normalizedDate = String(
+    drawDate || "",
+  ).trim();
+
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      normalizedDate,
+    )
+  ) {
+    throw new Error(
+      "Data inválida. Utilize YYYY-MM-DD.",
+    );
+  }
+
+  const database = getAdminFirestore();
+
+  const snapshot = await database
+    .collection("lottery_results")
+    .where(
+      "drawDate",
+      "==",
+      normalizedDate,
+    )
+    .get();
+
+  return snapshot.docs
+    .map((document) => document.data())
+    .filter(
+      (result) =>
+        result?.lotteryKey === lotteryKey,
+    )
+    .sort(
+      (first, second) =>
+        Number(second.contest) -
+        Number(first.contest),
+    );
+}
+

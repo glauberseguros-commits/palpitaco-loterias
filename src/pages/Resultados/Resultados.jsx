@@ -1,6 +1,6 @@
 import {
-  useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -9,11 +9,10 @@ import {
 } from "../../data/lotteries";
 
 import {
-  getLotteryHistory,
+  getLatestLotteryResults,
   getLotteryResultByContest,
+  getLotteryResultsByDate,
 } from "../../services/lotteryResultsService";
-
-const PAGE_LIMIT = 20;
 
 function formatDate(value) {
   const match = String(
@@ -47,7 +46,6 @@ function formatMoney(value) {
     {
       style: "currency",
       currency: "BRL",
-      maximumFractionDigits: 2,
     },
   ).format(amount);
 }
@@ -75,8 +73,8 @@ function ResultCard({
     );
 
   return (
-    <article className="official-result-card">
-      <header className="official-result-card-header">
+    <article className="clean-result-card">
+      <header className="clean-result-card-header">
         <div>
           <span className="panel-label">
             Loterias CAIXA
@@ -90,37 +88,26 @@ function ResultCard({
         </span>
       </header>
 
-      <div className="official-result-card-summary">
+      <div className="clean-result-summary">
         <div>
           <span>Concurso</span>
-
-          <strong>
-            {result.contest}
-          </strong>
+          <strong>{result.contest}</strong>
         </div>
 
         <div>
           <span>Data</span>
-
           <strong>
-            {formatDate(
-              result.drawDate,
-            )}
+            {formatDate(result.drawDate)}
           </strong>
         </div>
       </div>
 
-      <div
-        className="official-result-card-numbers"
-        aria-label={
-          `Dezenas do concurso ` +
-          result.contest
-        }
-      >
+      <div className="clean-result-numbers">
         {result.numbers.map(
           (number, index) => (
             <span
               key={
+                `${result.lotteryKey}-` +
                 `${result.contest}-` +
                 `${number}-${index}`
               }
@@ -131,7 +118,7 @@ function ResultCard({
         )}
       </div>
 
-      <div className="official-result-card-details">
+      <div className="clean-result-details">
         <div>
           <span>Situação</span>
 
@@ -155,10 +142,8 @@ function ResultCard({
         </div>
       </div>
 
-      <footer className="official-result-card-footer">
-        <span>
-          Fonte confirmada
-        </span>
+      <footer className="clean-result-footer">
+        <span>Fonte confirmada</span>
 
         <strong>
           Concurso oficial e imutável
@@ -169,280 +154,272 @@ function ResultCard({
 }
 
 export default function Resultados() {
+  const [latestResults, setLatestResults] =
+    useState([]);
+
   const [selectedLotteryKey, setSelectedLotteryKey] =
     useState(
       LOTTERY_CATALOG[0]?.key ||
-      "mega-sena",
+      "lotofacil",
     );
 
-  const [results, setResults] =
+  const [searchType, setSearchType] =
+    useState("contest");
+
+  const [contestInput, setContestInput] =
+    useState("");
+
+  const [dateInput, setDateInput] =
+    useState("");
+
+  const [searchResults, setSearchResults] =
     useState([]);
 
-  const [pagination, setPagination] =
-    useState({
-      nextCursor: null,
-      hasMore: false,
-      latestContest: null,
-    });
+  const [searchMode, setSearchMode] =
+    useState(false);
 
   const [loading, setLoading] =
     useState(true);
 
-  const [loadingMore, setLoadingMore] =
+  const [searching, setSearching] =
     useState(false);
 
   const [error, setError] =
     useState("");
 
-  const [contestInput, setContestInput] =
-    useState("");
+  useEffect(() => {
+    let active = true;
 
-  const [searching, setSearching] =
-    useState(false);
-
-  const [searchMode, setSearchMode] =
-    useState(false);
-
-  const loadFirstPage = useCallback(
-    async () => {
+    async function loadLatest() {
       setLoading(true);
       setError("");
-      setSearchMode(false);
-      setContestInput("");
 
       try {
-        const history =
-          await getLotteryHistory(
-            selectedLotteryKey,
-            {
-              limit: PAGE_LIMIT,
-            },
-          );
+        const results =
+          await getLatestLotteryResults();
 
-        setResults(
-          history.results,
-        );
-
-        setPagination(
-          history.pagination,
-        );
+        if (active) {
+          setLatestResults(results);
+        }
       } catch (loadError) {
-        setResults([]);
-
-        setPagination({
-          nextCursor: null,
-          hasMore: false,
-          latestContest: null,
-        });
-
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Não foi possível carregar o histórico oficial.",
-        );
+        if (active) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Não foi possível carregar os últimos resultados.",
+          );
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
-    },
-    [selectedLotteryKey],
-  );
-
-  useEffect(() => {
-    loadFirstPage();
-  }, [loadFirstPage]);
-
-  async function loadMore() {
-    if (
-      loadingMore ||
-      !pagination.hasMore ||
-      !pagination.nextCursor
-    ) {
-      return;
     }
 
-    setLoadingMore(true);
-    setError("");
+    loadLatest();
 
-    try {
-      const history =
-        await getLotteryHistory(
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const selectedLottery =
+    useMemo(
+      () =>
+        getLotteryDefinition(
           selectedLotteryKey,
-          {
-            limit: PAGE_LIMIT,
-            cursor:
-              pagination.nextCursor,
-          },
-        );
+        ),
+      [selectedLotteryKey],
+    );
 
-      setResults(
-        (currentResults) => [
-          ...currentResults,
-          ...history.results.filter(
-            (candidate) =>
-              !currentResults.some(
-                (current) =>
-                  current.id ===
-                  candidate.id,
-              ),
-          ),
-        ],
-      );
-
-      setPagination(
-        history.pagination,
-      );
-    } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "Não foi possível carregar mais concursos.",
-      );
-    } finally {
-      setLoadingMore(false);
-    }
-  }
-
-  async function searchContest(
-    event,
-  ) {
+  async function handleSearch(event) {
     event.preventDefault();
 
-    const contest =
-      Number(contestInput);
-
-    if (
-      !Number.isInteger(contest) ||
-      contest <= 0
-    ) {
-      setError(
-        "Informe um número de concurso válido.",
-      );
-
-      return;
-    }
-
-    setSearching(true);
     setError("");
+    setSearching(true);
 
     try {
-      const result =
-        await getLotteryResultByContest(
-          selectedLotteryKey,
-          contest,
-        );
+      if (searchType === "contest") {
+        const contest =
+          Number(contestInput);
 
-      setResults([result]);
+        if (
+          !Number.isInteger(contest) ||
+          contest <= 0
+        ) {
+          throw new Error(
+            "Informe um número de concurso válido.",
+          );
+        }
 
-      setPagination({
-        nextCursor: null,
-        hasMore: false,
-        latestContest:
-          pagination.latestContest,
-      });
+        const result =
+          await getLotteryResultByContest(
+            selectedLotteryKey,
+            contest,
+          );
+
+        setSearchResults([result]);
+      } else {
+        if (!dateInput) {
+          throw new Error(
+            "Selecione uma data no calendário.",
+          );
+        }
+
+        const results =
+          await getLotteryResultsByDate(
+            selectedLotteryKey,
+            dateInput,
+          );
+
+        setSearchResults(results);
+      }
 
       setSearchMode(true);
     } catch (searchError) {
-      setResults([]);
-
+      setSearchResults([]);
       setSearchMode(true);
 
       setError(
         searchError instanceof Error
           ? searchError.message
-          : "Concurso não localizado.",
+          : "Não foi possível concluir a busca.",
       );
     } finally {
       setSearching(false);
     }
   }
 
+  function returnToLatest() {
+    setSearchMode(false);
+    setSearchResults([]);
+    setError("");
+    setContestInput("");
+    setDateInput("");
+  }
+
   return (
-    <section className="page results-page">
+    <section className="page clean-results-page">
       <header className="page-header">
         <span className="eyebrow">
           Resultados oficiais
         </span>
 
-        <h1>Histórico de resultados</h1>
+        <h1>Resultados</h1>
 
         <p>
-          Consulte todos os concursos oficiais
-          importados da Loterias CAIXA.
+          Veja os últimos concursos ou localize
+          um resultado específico por número
+          ou data.
         </p>
       </header>
 
-      <div
-        className="results-filter"
-        aria-label="Selecionar modalidade"
-      >
-        {LOTTERY_CATALOG.map(
-          (lottery) => (
-            <button
-              key={lottery.key}
-              type="button"
-              className={
-                selectedLotteryKey ===
-                lottery.key
-                  ? "lottery-tab lottery-tab-active"
-                  : "lottery-tab"
-              }
-              onClick={() =>
-                setSelectedLotteryKey(
-                  lottery.key,
-                )
-              }
-            >
-              {lottery.name}
-            </button>
-          ),
-        )}
-      </div>
-
-      <section className="history-toolbar">
-        <div className="history-toolbar-summary">
-          <span>
-            Modalidade selecionada
-          </span>
+      <section className="clean-search-panel">
+        <div className="clean-search-heading">
+          <span>Consulta oficial</span>
 
           <strong>
-            {
-              getLotteryDefinition(
-                selectedLotteryKey,
-              ).name
-            }
+            Localizar sorteio
           </strong>
+        </div>
 
-          {pagination.latestContest && (
-            <small>
-              Último concurso:{" "}
-              {pagination.latestContest}
-            </small>
+        <div
+          className="clean-lottery-selector"
+          aria-label="Selecionar modalidade"
+        >
+          {LOTTERY_CATALOG.map(
+            (lottery) => (
+              <button
+                key={lottery.key}
+                type="button"
+                className={
+                  selectedLotteryKey ===
+                  lottery.key
+                    ? "lottery-tab lottery-tab-active"
+                    : "lottery-tab"
+                }
+                onClick={() =>
+                  setSelectedLotteryKey(
+                    lottery.key,
+                  )
+                }
+              >
+                {lottery.name}
+              </button>
+            ),
           )}
         </div>
 
         <form
-          className="history-search"
-          onSubmit={searchContest}
+          className="clean-search-form"
+          onSubmit={handleSearch}
         >
-          <label htmlFor="contest-search">
-            Buscar concurso
-          </label>
-
-          <div>
-            <input
-              id="contest-search"
-              type="number"
-              min="1"
-              step="1"
-              inputMode="numeric"
-              placeholder="Ex.: 3040"
-              value={contestInput}
-              onChange={(event) =>
-                setContestInput(
-                  event.target.value,
-                )
+          <div className="clean-search-type">
+            <button
+              type="button"
+              className={
+                searchType === "contest"
+                  ? "clean-search-type-active"
+                  : ""
               }
-            />
+              onClick={() =>
+                setSearchType("contest")
+              }
+            >
+              Por concurso
+            </button>
+
+            <button
+              type="button"
+              className={
+                searchType === "date"
+                  ? "clean-search-type-active"
+                  : ""
+              }
+              onClick={() =>
+                setSearchType("date")
+              }
+            >
+              Por data
+            </button>
+          </div>
+
+          <div className="clean-search-fields">
+            <div>
+              <label htmlFor="official-result-search">
+                {searchType === "contest"
+                  ? "Número do concurso"
+                  : "Data do sorteio"}
+              </label>
+
+              {searchType === "contest" ? (
+                <input
+                  id="official-result-search"
+                  type="number"
+                  min="1"
+                  step="1"
+                  inputMode="numeric"
+                  placeholder="Ex.: 3040"
+                  value={contestInput}
+                  onChange={(event) =>
+                    setContestInput(
+                      event.target.value,
+                    )
+                  }
+                />
+              ) : (
+                <input
+                  id="official-result-search"
+                  type="date"
+                  value={dateInput}
+                  onChange={(event) =>
+                    setDateInput(
+                      event.target.value,
+                    )
+                  }
+                />
+              )}
+            </div>
 
             <button
               type="submit"
@@ -451,69 +428,78 @@ export default function Resultados() {
             >
               {searching
                 ? "Buscando..."
-                : "Buscar"}
+                : "Buscar resultado"}
             </button>
           </div>
+
+          <small>
+            Modalidade selecionada:{" "}
+            <strong>
+              {selectedLottery.name}
+            </strong>
+          </small>
         </form>
       </section>
 
       {searchMode && (
-        <button
-          type="button"
-          className="secondary-button history-back-button"
-          onClick={loadFirstPage}
-        >
-          Voltar ao histórico
-        </button>
+        <div className="clean-search-result-heading">
+          <div>
+            <span>Resultado da busca</span>
+
+            <strong>
+              {selectedLottery.name}
+            </strong>
+          </div>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={returnToLatest}
+          >
+            Voltar aos últimos resultados
+          </button>
+        </div>
       )}
 
-      {loading && (
-        <div
-          className="results-loading"
-          role="status"
-          aria-live="polite"
-        >
-          <span className="result-loader" />
-
+      {loading && !searchMode && (
+        <div className="results-loading">
           <strong>
-            Carregando histórico oficial
+            Carregando resultados oficiais
           </strong>
 
           <p>
-            Aguarde enquanto os concursos são
-            consultados.
+            Consultando os últimos concursos.
           </p>
         </div>
       )}
 
-      {!loading && error && (
+      {error && (
         <div
           className="results-loading results-loading-error"
           role="alert"
         >
           <strong>
-            Não foi possível concluir a consulta
+            Resultado não localizado
           </strong>
 
           <p>{error}</p>
-
-          {!searchMode && (
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={loadFirstPage}
-            >
-              Tentar novamente
-            </button>
-          )}
         </div>
       )}
 
       {!loading &&
-        results.length > 0 && (
+        !searchMode &&
+        latestResults.length > 0 && (
           <>
-            <div className="official-results-grid">
-              {results.map(
+            <div className="clean-section-title">
+              <span>Últimos sorteios</span>
+
+              <strong>
+                Um resultado por modalidade
+              </strong>
+            </div>
+
+            <div className="clean-results-grid">
+              {latestResults.map(
                 (result) => (
                   <ResultCard
                     key={
@@ -525,49 +511,39 @@ export default function Resultados() {
                 ),
               )}
             </div>
-
-            {!searchMode &&
-              pagination.hasMore && (
-                <div className="history-load-more">
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={loadMore}
-                    disabled={loadingMore}
-                  >
-                    {loadingMore
-                      ? "Carregando..."
-                      : "Carregar mais resultados"}
-                  </button>
-
-                  <small>
-                    {results.length} concursos
-                    exibidos
-                  </small>
-                </div>
-              )}
-
-            {!searchMode &&
-              !pagination.hasMore && (
-                <div className="history-end">
-                  Todo o histórico disponível foi
-                  carregado.
-                </div>
-              )}
           </>
         )}
 
-      {!loading &&
+      {searchMode &&
         !error &&
-        results.length === 0 && (
+        searchResults.length > 0 && (
+          <div className="clean-results-grid clean-results-grid-search">
+            {searchResults.map(
+              (result) => (
+                <ResultCard
+                  key={
+                    result.id ||
+                    `${result.lotteryKey}-${result.contest}`
+                  }
+                  result={result}
+                />
+              ),
+            )}
+          </div>
+        )}
+
+      {searchMode &&
+        !error &&
+        searchResults.length === 0 && (
           <div className="results-loading">
             <strong>
-              Nenhum concurso localizado
+              Nenhum sorteio encontrado
             </strong>
 
             <p>
-              Verifique a modalidade ou o número
-              informado.
+              Não há resultado da{" "}
+              {selectedLottery.name} para a
+              consulta informada.
             </p>
           </div>
         )}

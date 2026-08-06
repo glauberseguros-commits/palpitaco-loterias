@@ -937,3 +937,317 @@
     width: 100%;
   }
 }
+
+/* PALPITACO_LOTERIAS_CLEAN_RESULT_SEARCH_V1 */
+
+.clean-results-page {
+  display: grid;
+  gap: 24px;
+}
+
+.clean-search-panel {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.clean-search-heading,
+.clean-section-title,
+.clean-search-result-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.clean-search-heading span,
+.clean-section-title span,
+.clean-search-result-heading span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.clean-search-heading strong,
+.clean-section-title strong,
+.clean-search-result-heading strong {
+  color: var(--gold-light);
+  font-size: 19px;
+}
+
+.clean-lottery-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.clean-search-form {
+  display: grid;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.clean-search-type {
+  display: inline-flex;
+  width: fit-content;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface-soft);
+}
+
+.clean-search-type button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 9px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.clean-search-type button.clean-search-type-active {
+  color: #070707;
+  background: var(--gold);
+}
+
+.clean-search-fields {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.clean-search-fields > div {
+  display: grid;
+  gap: 7px;
+}
+
+.clean-search-fields label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.clean-search-fields input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  color: #fff;
+  color-scheme: dark;
+  background: var(--surface-soft);
+  font: inherit;
+}
+
+.clean-search-fields input:focus {
+  border-color: var(--gold);
+  box-shadow:
+    0 0 0 3px
+    rgba(223, 189, 67, 0.1);
+}
+
+.clean-search-form > small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.clean-search-form > small strong {
+  color: var(--gold-light);
+}
+
+.clean-results-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.clean-results-grid-search {
+  grid-template-columns:
+    minmax(0, 680px);
+}
+
+.clean-result-card {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.clean-result-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.clean-result-card-header h2 {
+  margin: 5px 0 0;
+  color: #fff;
+  font-size: 22px;
+}
+
+.clean-result-summary,
+.clean-result-details {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.clean-result-summary > div,
+.clean-result-details > div {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid
+    rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.clean-result-summary span,
+.clean-result-details span,
+.clean-result-footer span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.clean-result-summary strong,
+.clean-result-details strong {
+  color: #fff;
+  font-size: 13px;
+}
+
+.clean-result-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.clean-result-numbers span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  color: #090909;
+  background: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.clean-result-footer {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  border-left: 3px solid var(--gold);
+  border-radius: 0 12px 12px 0;
+  background:
+    rgba(223, 189, 67, 0.06);
+}
+
+.clean-result-footer strong {
+  color: var(--gold-light);
+  font-size: 11px;
+}
+
+@media (max-width: 760px) {
+  .clean-search-panel {
+    padding: 18px;
+  }
+
+  .clean-search-heading,
+  .clean-section-title,
+  .clean-search-result-heading {
+    display: grid;
+    align-items: start;
+  }
+
+  .clean-search-result-heading .secondary-button {
+    width: 100%;
+  }
+
+  .clean-lottery-selector {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .clean-lottery-selector .lottery-tab {
+    width: 100%;
+  }
+
+  .clean-search-type {
+    width: 100%;
+  }
+
+  .clean-search-type button {
+    flex: 1;
+  }
+
+  .clean-search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .clean-search-fields .primary-button {
+    width: 100%;
+  }
+
+  .clean-results-grid,
+  .clean-results-grid-search {
+    grid-template-columns: 1fr;
+  }
+
+  .clean-result-card {
+    padding: 18px;
+  }
+
+  .clean-result-summary,
+  .clean-result-details {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .clean-result-numbers span {
+    width: 39px;
+    height: 39px;
+  }
+}
+
+@media (max-width: 390px) {
+  .clean-result-summary,
+  .clean-result-details {
+    grid-template-columns: 1fr;
+  }
+
+  .clean-result-numbers {
+    gap: 7px;
+  }
+
+  .clean-result-numbers span {
+    width: 37px;
+    height: 37px;
+    font-size: 11px;
+  }
+}

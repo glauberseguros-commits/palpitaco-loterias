@@ -6,6 +6,7 @@ import {
   getLatestOfficialResult,
   getOfficialResult,
   getOfficialResultHistory,
+  getOfficialResultsByDate,
 } from "../services/officialResultsService.js";
 
 import {
@@ -220,6 +221,71 @@ router.get(
 );
 
 router.get(
+  "/:lotteryKey/by-date",
+  async (request, response) => {
+    const lotteryKey = normalizeLotteryKey(
+      request.params.lotteryKey,
+    );
+
+    try {
+      getLotteryDefinition(lotteryKey);
+    } catch {
+      return sendError(
+        response,
+        400,
+        "INVALID_LOTTERY",
+        "Modalidade inválida.",
+      );
+    }
+
+    const date = String(
+      request.query.date || "",
+    ).trim();
+
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(date)
+    ) {
+      return sendError(
+        response,
+        400,
+        "INVALID_DRAW_DATE",
+        "Informe a data no formato YYYY-MM-DD.",
+      );
+    }
+
+    try {
+      const results =
+        await getOfficialResultsByDate(
+          lotteryKey,
+          date,
+        );
+
+      return response.json({
+        ok: true,
+        source: "CAIXA",
+        lotteryKey,
+        date,
+        count: results.length,
+        results: results.map(
+          toPublicResult,
+        ),
+      });
+    } catch (error) {
+      console.error(
+        "[PUBLIC_API_BY_DATE]",
+        error,
+      );
+
+      return sendError(
+        response,
+        500,
+        "DATE_RESULTS_READ_FAILED",
+        "Não foi possível consultar os resultados pela data.",
+      );
+    }
+  },
+);
+router.get(
   "/:lotteryKey/history",
   async (request, response) => {
     const lotteryKey = normalizeLotteryKey(
@@ -407,4 +473,5 @@ router.get(
 );
 
 export default router;
+
 
