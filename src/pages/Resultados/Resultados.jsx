@@ -358,7 +358,13 @@ export default function Resultados() {
   }
 
   return (
-    <section className="page clean-results-page">
+    <section
+      className={
+        selectedLotteryKey === "all"
+          ? "page clean-results-page premium-results-page premium-results-page-all"
+          : "page clean-results-page premium-results-page premium-results-page-single"
+      }
+    >
       <header className="page-header">
         <span className="eyebrow">
           Resultados oficiais
@@ -373,7 +379,7 @@ export default function Resultados() {
         </p>
       </header>
 
-      <section className="clean-search-panel">
+      <section className="clean-search-panel premium-search-panel">
         <div className="clean-search-heading">
           <span>
             Consulta oficial
@@ -580,7 +586,13 @@ export default function Resultados() {
         !searchMode &&
         visibleLatestResults.length > 0 && (
           <>
-            <div className="clean-section-title">
+            <div
+              className={
+                selectedLotteryKey === "all"
+                  ? "clean-section-title premium-result-heading premium-result-heading-all"
+                  : "clean-section-title premium-result-heading premium-result-heading-single"
+              }
+            >
               <span>
                 Últimos sorteios
               </span>
@@ -592,7 +604,13 @@ export default function Resultados() {
               </strong>
             </div>
 
-            <div className="clean-results-grid">
+            <div
+              className={
+                selectedLotteryKey === "all"
+                  ? "clean-results-grid premium-results-grid premium-results-grid-all"
+                  : "clean-results-grid premium-results-grid premium-results-grid-single"
+              }
+            >
               {visibleLatestResults.map(
                 (result) => (
                   <ResultCard
@@ -660,3 +678,4 @@ export default function Resultados() {
     </section>
   );
 }
+

@@ -1320,3 +1320,254 @@
     box-shadow:none;
 }
 
+
+/* ======================================================================
+   PALPITACO_LOTERIAS_PREMIUM_RESULTS_COMPOSITION_V1
+   ====================================================================== */
+
+.premium-results-page {
+  width: min(100%, 980px);
+  margin-inline: auto;
+  gap: 28px;
+}
+
+.premium-results-page .page-header {
+  max-width: 760px;
+}
+
+.premium-results-page .page-header h1 {
+  margin-bottom: 10px;
+}
+
+.premium-results-page .page-header p {
+  max-width: 680px;
+  line-height: 1.65;
+}
+
+.premium-search-panel {
+  width: 100%;
+  max-width: 920px;
+  margin-inline: auto;
+  padding: 24px 26px;
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.008)
+    ),
+    var(--surface);
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.2);
+}
+
+.premium-search-panel .clean-search-heading {
+  padding-bottom: 4px;
+}
+
+.premium-search-panel .clean-search-heading strong {
+  font-size: 18px;
+}
+
+.premium-search-panel .clean-lottery-selector {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.premium-search-panel .clean-search-form {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.premium-search-panel .clean-search-type {
+  margin-top: 2px;
+}
+
+.premium-search-panel .clean-search-fields {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    170px;
+  gap: 12px;
+  align-items: end;
+}
+
+.premium-search-panel
+.clean-search-fields
+.primary-button {
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  min-height: 48px;
+}
+
+.premium-search-panel
+.clean-search-fields
+input {
+  min-height: 48px;
+}
+
+.premium-result-heading {
+  width: 100%;
+  margin-top: 2px;
+  padding: 0 2px 4px;
+}
+
+.premium-result-heading-single {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.premium-result-heading-single strong {
+  font-size: 21px;
+}
+
+.premium-result-heading-all {
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+.premium-results-grid {
+  width: 100%;
+  margin-inline: auto;
+}
+
+.premium-results-grid-all {
+  max-width: 920px;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.premium-results-grid-single {
+  max-width: 760px;
+  grid-template-columns: 1fr;
+}
+
+.premium-results-grid-single
+.clean-result-card {
+  padding: 28px;
+  gap: 22px;
+  border-radius: 24px;
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.22);
+}
+
+.premium-results-grid-single
+.clean-result-card-header h2 {
+  font-size: 27px;
+}
+
+.premium-results-grid-single
+.clean-result-summary,
+.premium-results-grid-single
+.clean-result-details {
+  gap: 14px;
+}
+
+.premium-results-grid-single
+.clean-result-summary > div,
+.premium-results-grid-single
+.clean-result-details > div {
+  padding: 16px;
+  min-height: 76px;
+}
+
+.premium-results-grid-single
+.clean-result-summary strong,
+.premium-results-grid-single
+.clean-result-details strong {
+  font-size: 15px;
+}
+
+.premium-results-grid-single
+.clean-result-numbers {
+  gap: 11px;
+}
+
+.premium-results-grid-single
+.clean-result-numbers span {
+  width: 46px;
+  height: 46px;
+  font-size: 13px;
+}
+
+.premium-results-grid-single
+.clean-result-footer {
+  padding: 17px;
+}
+
+.premium-results-page-single
+.clean-section-title {
+  align-items: flex-end;
+}
+
+@media (min-width: 761px) {
+  .premium-results-page-single
+  .premium-search-panel {
+    max-width: 760px;
+  }
+}
+
+@media (max-width: 900px) {
+  .premium-results-page {
+    width: 100%;
+  }
+
+  .premium-results-grid-all {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .premium-results-page {
+    gap: 22px;
+  }
+
+  .premium-search-panel {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .premium-search-panel
+  .clean-search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .premium-result-heading-single,
+  .premium-result-heading-all,
+  .premium-results-grid-single,
+  .premium-results-grid-all {
+    max-width: none;
+  }
+
+  .premium-results-grid-single
+  .clean-result-card {
+    padding: 19px;
+    border-radius: 19px;
+  }
+
+  .premium-results-grid-single
+  .clean-result-card-header h2 {
+    font-size: 22px;
+  }
+
+  .premium-results-grid-single
+  .clean-result-numbers span {
+    width: 39px;
+    height: 39px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 390px) {
+  .premium-search-panel {
+    padding: 15px;
+  }
+
+  .premium-search-panel
+  .clean-lottery-selector {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
