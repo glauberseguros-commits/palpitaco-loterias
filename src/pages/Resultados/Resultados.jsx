@@ -91,13 +91,19 @@ function ResultCard({
       <div className="clean-result-summary">
         <div>
           <span>Concurso</span>
-          <strong>{result.contest}</strong>
+
+          <strong>
+            {result.contest}
+          </strong>
         </div>
 
         <div>
           <span>Data</span>
+
           <strong>
-            {formatDate(result.drawDate)}
+            {formatDate(
+              result.drawDate,
+            )}
           </strong>
         </div>
       </div>
@@ -143,7 +149,9 @@ function ResultCard({
       </div>
 
       <footer className="clean-result-footer">
-        <span>Fonte confirmada</span>
+        <span>
+          Fonte confirmada
+        </span>
 
         <strong>
           Concurso oficial e imutável
@@ -158,10 +166,7 @@ export default function Resultados() {
     useState([]);
 
   const [selectedLotteryKey, setSelectedLotteryKey] =
-    useState(
-      LOTTERY_CATALOG[0]?.key ||
-      "lotofacil",
-    );
+    useState("all");
 
   const [searchType, setSearchType] =
     useState("contest");
@@ -226,20 +231,74 @@ export default function Resultados() {
   const selectedLottery =
     useMemo(
       () =>
-        getLotteryDefinition(
-          selectedLotteryKey,
-        ),
+        selectedLotteryKey === "all"
+          ? {
+              key: "all",
+              name: "Todas",
+            }
+          : getLotteryDefinition(
+              selectedLotteryKey,
+            ),
       [selectedLotteryKey],
     );
 
-  async function handleSearch(event) {
+  const visibleLatestResults =
+    useMemo(
+      () =>
+        selectedLotteryKey === "all"
+          ? latestResults
+          : latestResults.filter(
+              (result) =>
+                result.lotteryKey ===
+                selectedLotteryKey,
+            ),
+      [
+        latestResults,
+        selectedLotteryKey,
+      ],
+    );
+
+  function resetSearch() {
+    setSearchMode(false);
+    setSearchResults([]);
+    setError("");
+    setContestInput("");
+    setDateInput("");
+  }
+
+  function selectLottery(
+    lotteryKey,
+  ) {
+    setSelectedLotteryKey(
+      lotteryKey,
+    );
+
+    resetSearch();
+  }
+
+  async function handleSearch(
+    event,
+  ) {
     event.preventDefault();
 
     setError("");
+
+    if (
+      selectedLotteryKey === "all"
+    ) {
+      setError(
+        "Selecione uma modalidade para realizar a busca.",
+      );
+
+      return;
+    }
+
     setSearching(true);
 
     try {
-      if (searchType === "contest") {
+      if (
+        searchType === "contest"
+      ) {
         const contest =
           Number(contestInput);
 
@@ -258,7 +317,9 @@ export default function Resultados() {
             contest,
           );
 
-        setSearchResults([result]);
+        setSearchResults([
+          result,
+        ]);
       } else {
         if (!dateInput) {
           throw new Error(
@@ -272,7 +333,9 @@ export default function Resultados() {
             dateInput,
           );
 
-        setSearchResults(results);
+        setSearchResults(
+          results,
+        );
       }
 
       setSearchMode(true);
@@ -291,11 +354,7 @@ export default function Resultados() {
   }
 
   function returnToLatest() {
-    setSearchMode(false);
-    setSearchResults([]);
-    setError("");
-    setContestInput("");
-    setDateInput("");
+    resetSearch();
   }
 
   return (
@@ -316,7 +375,9 @@ export default function Resultados() {
 
       <section className="clean-search-panel">
         <div className="clean-search-heading">
-          <span>Consulta oficial</span>
+          <span>
+            Consulta oficial
+          </span>
 
           <strong>
             Localizar sorteio
@@ -327,6 +388,20 @@ export default function Resultados() {
           className="clean-lottery-selector"
           aria-label="Selecionar modalidade"
         >
+          <button
+            type="button"
+            className={
+              selectedLotteryKey === "all"
+                ? "lottery-tab lottery-tab-active"
+                : "lottery-tab"
+            }
+            onClick={() =>
+              selectLottery("all")
+            }
+          >
+            Todos
+          </button>
+
           {LOTTERY_CATALOG.map(
             (lottery) => (
               <button
@@ -339,7 +414,7 @@ export default function Resultados() {
                     : "lottery-tab"
                 }
                 onClick={() =>
-                  setSelectedLotteryKey(
+                  selectLottery(
                     lottery.key,
                   )
                 }
@@ -350,101 +425,116 @@ export default function Resultados() {
           )}
         </div>
 
-        <form
-          className="clean-search-form"
-          onSubmit={handleSearch}
-        >
-          <div className="clean-search-type">
-            <button
-              type="button"
-              className={
-                searchType === "contest"
-                  ? "clean-search-type-active"
-                  : ""
-              }
-              onClick={() =>
-                setSearchType("contest")
-              }
-            >
-              Por concurso
-            </button>
-
-            <button
-              type="button"
-              className={
-                searchType === "date"
-                  ? "clean-search-type-active"
-                  : ""
-              }
-              onClick={() =>
-                setSearchType("date")
-              }
-            >
-              Por data
-            </button>
+        {selectedLotteryKey === "all" ? (
+          <div className="clean-search-form">
+            <small>
+              Selecione uma modalidade para
+              procurar um sorteio por número
+              ou por data.
+            </small>
           </div>
+        ) : (
+          <form
+            className="clean-search-form"
+            onSubmit={handleSearch}
+          >
+            <div className="clean-search-type">
+              <button
+                type="button"
+                className={
+                  searchType === "contest"
+                    ? "clean-search-type-active"
+                    : ""
+                }
+                onClick={() => {
+                  setSearchType("contest");
+                  setError("");
+                }}
+              >
+                Por concurso
+              </button>
 
-          <div className="clean-search-fields">
-            <div>
-              <label htmlFor="official-result-search">
-                {searchType === "contest"
-                  ? "Número do concurso"
-                  : "Data do sorteio"}
-              </label>
-
-              {searchType === "contest" ? (
-                <input
-                  id="official-result-search"
-                  type="number"
-                  min="1"
-                  step="1"
-                  inputMode="numeric"
-                  placeholder="Ex.: 3040"
-                  value={contestInput}
-                  onChange={(event) =>
-                    setContestInput(
-                      event.target.value,
-                    )
-                  }
-                />
-              ) : (
-                <input
-                  id="official-result-search"
-                  type="date"
-                  value={dateInput}
-                  onChange={(event) =>
-                    setDateInput(
-                      event.target.value,
-                    )
-                  }
-                />
-              )}
+              <button
+                type="button"
+                className={
+                  searchType === "date"
+                    ? "clean-search-type-active"
+                    : ""
+                }
+                onClick={() => {
+                  setSearchType("date");
+                  setError("");
+                }}
+              >
+                Por data
+              </button>
             </div>
 
-            <button
-              type="submit"
-              className="primary-button"
-              disabled={searching}
-            >
-              {searching
-                ? "Buscando..."
-                : "Buscar resultado"}
-            </button>
-          </div>
+            <div className="clean-search-fields">
+              <div>
+                <label htmlFor="official-result-search">
+                  {searchType === "contest"
+                    ? "Número do concurso"
+                    : "Data do sorteio"}
+                </label>
 
-          <small>
-            Modalidade selecionada:{" "}
-            <strong>
-              {selectedLottery.name}
-            </strong>
-          </small>
-        </form>
+                {searchType === "contest" ? (
+                  <input
+                    id="official-result-search"
+                    type="number"
+                    min="1"
+                    step="1"
+                    inputMode="numeric"
+                    placeholder="Ex.: 3040"
+                    value={contestInput}
+                    onChange={(event) =>
+                      setContestInput(
+                        event.target.value,
+                      )
+                    }
+                  />
+                ) : (
+                  <input
+                    id="official-result-search"
+                    type="date"
+                    value={dateInput}
+                    onChange={(event) =>
+                      setDateInput(
+                        event.target.value,
+                      )
+                    }
+                  />
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="primary-button"
+                disabled={searching}
+              >
+                {searching
+                  ? "Buscando..."
+                  : "Buscar resultado"}
+              </button>
+            </div>
+
+            <small>
+              Modalidade selecionada:{" "}
+
+              <strong>
+                {selectedLottery.name}
+              </strong>
+            </small>
+          </form>
+        )}
       </section>
 
       {searchMode && (
         <div className="clean-search-result-heading">
           <div>
-            <span>Resultado da busca</span>
+            <span>
+              Resultado da busca
+            </span>
 
             <strong>
               {selectedLottery.name}
@@ -456,7 +546,7 @@ export default function Resultados() {
             className="secondary-button"
             onClick={returnToLatest}
           >
-            Voltar aos últimos resultados
+            Voltar ao último resultado
           </button>
         </div>
       )}
@@ -488,18 +578,22 @@ export default function Resultados() {
 
       {!loading &&
         !searchMode &&
-        latestResults.length > 0 && (
+        visibleLatestResults.length > 0 && (
           <>
             <div className="clean-section-title">
-              <span>Últimos sorteios</span>
+              <span>
+                Últimos sorteios
+              </span>
 
               <strong>
-                Um resultado por modalidade
+                {selectedLotteryKey === "all"
+                  ? "Um resultado por modalidade"
+                  : `Último resultado da ${selectedLottery.name}`}
               </strong>
             </div>
 
             <div className="clean-results-grid">
-              {latestResults.map(
+              {visibleLatestResults.map(
                 (result) => (
                   <ResultCard
                     key={
@@ -512,6 +606,22 @@ export default function Resultados() {
               )}
             </div>
           </>
+        )}
+
+      {!loading &&
+        !searchMode &&
+        !error &&
+        visibleLatestResults.length === 0 && (
+          <div className="results-loading">
+            <strong>
+              Resultado não disponível
+            </strong>
+
+            <p>
+              O último concurso desta modalidade
+              não foi localizado.
+            </p>
+          </div>
         )}
 
       {searchMode &&
