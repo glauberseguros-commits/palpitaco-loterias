@@ -240,11 +240,7 @@ export default function Gerador() {
 
         <h1>Gerador</h1>
 
-        <p>
-          Gere jogos aleatórios respeitando
-          as regras oficiais de cada
-          modalidade.
-        </p>
+        
       </header>
 
       <section className="generator-config-panel">
@@ -324,15 +320,7 @@ export default function Gerador() {
             </strong>
           </div>
 
-          <div>
-            <span>
-              Tipo
-            </span>
-
-            <strong>
-              Aleatório
-            </strong>
-          </div>
+          
         </div>
 
         <div className="generator-controls">
@@ -509,13 +497,12 @@ export default function Gerador() {
             )}
           </div>
 
-          <p className="generator-disclaimer">
-            Combinações aleatórias não aumentam
-            a probabilidade matemática de
-            premiação. Jogue com responsabilidade.
-          </p>
+          
         </section>
       )}
     </section>
   );
 }
+
+
+
