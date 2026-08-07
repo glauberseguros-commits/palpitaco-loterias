@@ -251,7 +251,7 @@ export default function Gerador() {
             </span>
 
             <h2>
-              Monte sua geração
+              Monte seu jogo
             </h2>
           </div>
 
@@ -296,7 +296,7 @@ export default function Gerador() {
         <div className="generator-rule-summary">
           <div>
             <span>
-              Universo
+              Universo de dezenas
             </span>
 
             <strong>
@@ -412,7 +412,7 @@ export default function Gerador() {
 
           <div>
             <strong>
-              Nenhum jogo gerado
+              Nenhum jogo disponível
             </strong>
 
             <p>
@@ -503,6 +503,7 @@ export default function Gerador() {
     </section>
   );
 }
+
 
 
 
